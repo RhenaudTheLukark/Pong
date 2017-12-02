@@ -2,6 +2,7 @@
 
 import socket
 import sys
+import client_functions
 
 #server port
 port = 10000
@@ -43,13 +44,14 @@ def main():
         print(mr)
         if(mr.strip() == "Max connection number reached"):
             break
-        
+        if(mr.strip() == "Start")
+            play(client)
         #Wait for an input
-        ms = raw_input("> ")
+        #ms = raw_input("> ")
 
         #Send the input
-        ms = ms.encode()
-        client.send(ms)
+        #ms = ms.encode()
+        #client.send(ms)
 
 
     #Stop the client
