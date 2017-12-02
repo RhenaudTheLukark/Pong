@@ -21,6 +21,8 @@ def load(ball,ball_coords,rackets,rackets_coord):
     rackets = [None,None]
     rackets_coords = [None,None]
 
+
+
 class Ball:
 	def __init__(self):
 		self.x = width / 2
