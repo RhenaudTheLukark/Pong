@@ -1,0 +1,6 @@
+- Garder la balle dans l'écran (objet BallServer)
+- Collision raquette / balle
+- Notifier Gagné / Perdu 
+- Reset balle quand hors de l'écran
+- Séparer fonctions dans différents fichiers (dsl pour avoir tout centré sur client.py ^^")
+- Gérer erreur déconnexion joueur en jeu

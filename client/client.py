@@ -2,16 +2,26 @@
 
 import socket
 import sys
-import client_functions
+from client_functions import *
+from pong_lib import *
 
 #server port
 port = 10000
 host = 0
 
-def main():
+ball = None
+ball_coords = [0, 0]
+rackets = [None, None]
+racket_coords = [[0, 0], [0, 0]]
 
+client_input = [False, False]
+
+color = (0xFF, 0xFF, 0xFF)
+
+def main():
     global host
     global port
+    global client
 
     #verify the host was given
     try:
@@ -37,14 +47,13 @@ def main():
     
     #Start the connection loop
     while True:
-
         #Receive a message from the server and print it
         mr = client.recv(4096)
         mr = mr.decode()
-        print(mr)
+        print(mr + "\n")
         if(mr.strip() == "Max connection number reached"):
             break
-        if(mr.strip() == "Start")
+        if(mr.find("Start") > -1):
             play(client)
         #Wait for an input
         #ms = raw_input("> ")
@@ -56,5 +65,88 @@ def main():
 
     #Stop the client
     client.close()
+
+#Initialise Pygame
+def init():
+    global width
+    global height
+    global screen
+    pygame.init()
+    screen = pygame.display.set_mode((width, height))
+
+#Play an online game of Pong
+def play(s):
+    print("Game starts")
+    init()
+    ball = pygame.image.load("../resource/image/ball.png")
+
+    global rackets
+    for i in range(2):
+        rackets[i] = pygame.image.load("../resource/image/racket.png")
+
+    while True:
+        for e in pygame.event.get():
+            # Check for exit
+            if e.type == pygame.QUIT:
+                sys.exit()
+
+            # Check for racket movements
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_UP:
+                    #update upTrue
+                    client_input[0] = True
+                if e.key == pygame.K_DOWN:
+                    #update downTrue
+                    client_input[1] = True
+            elif e.type == pygame.KEYUP:
+                if e.key == pygame.K_UP:
+                    #update upFalse
+                    client_input[0] = False
+                if e.key == pygame.K_DOWN:
+                    #update downFalse
+                    client_input[1] = False
+        sendData()
+        receiveData()
+    	# Display everything
+    	screen.fill(color)
+        screen.blit(ball, ball_coords)
+        for i in range(2):
+            screen.blit(rackets[i], racket_coords[i])
+        pygame.display.flip()
+
+        # sleep 10ms, since there is no need for more than 100Hz refresh :)
+        #pygame.time.delay(10)
+
+def sendData():
+	data = ""
+	for i in range(len(client_input)):
+		data = data + ("1" if client_input[i] else "0") + ("\n" if i != len(client_input) - 1 else "")
+	client.send(data + "|")
+
+def receiveData():
+	data = client.recv(4096)
+	data2 = data.split('|')[len(data.split('|')) - 2]
+	coords = data2.split('\n')
+
+	#testData = "["
+	#for i in range(len(coords)):
+	#	testData = testData + coords[i] + ("," if i < len(coords) - 1 else "]")
+	#print("testData = " + testData)
+
+	for i in range(len(coords)):
+		if i < 4:
+			racket_coords[int(math.floor(i/2))][i % 2] = getNum(coords[i])
+		else: 
+			ball_coords[i % 2] = getNum(coords[i])
+
+###########
+# Utility #
+###########
+
+def getNum(string):
+	if string.find(".") > -1:
+		return float(string)
+	else:
+		return int(string)
 
 main()
