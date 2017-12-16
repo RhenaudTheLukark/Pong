@@ -18,6 +18,7 @@ server.listen(1)
 players = [] #Max 2
 
 racket_coords = []
+racket_dims = [20, 100]
 
 ball = None
 
@@ -68,7 +69,7 @@ def startGame():
 	global width
 	global height
 	global racket_coords
-	racket_coords = [[0, 0], [width - 37, 0]]
+	racket_coords = [[0, 0], [width - racket_dims[0], 0]]
 	for s in players:
 		s.send("Start")
 	throwBall()
@@ -91,12 +92,32 @@ def computeGame():
 	
 	# Compute ball
 	ball.update()
+	checkBallOnSide()
 	
 	# Then send data
 	sendGameData()
 
 	# Wait for next frame
 	time.sleep(0.01)
+
+def checkBallOnSide():
+	playerId = 0 if ball.x - racket_dims[0] < 0 else 1 if ball.x + racket_dims[0] >= width else -1
+	if playerId >= 0:
+		if ball.y + ball.diam >= racket_coords[playerId][1] and ball.y <= racket_coords[playerId][1] + racket_dims[1]:
+			if (playerId == 1 and (ball.direction < math.pi / 2 or ball.direction > 3 * math.pi / 2)) or (playerId == 0 and (ball.direction > math.pi / 2 and ball.direction < 3 * math.pi / 2)): 
+				ball.direction = math.pi - ball.direction
+				ball.speed = ball.speed + 0.2
+		elif ball.x < 0 or ball.x >= width:
+			print("Score for Player " + str(1 - playerId) + "!")
+			throwBall()
+	if ball.y < 0 or ball.y >= height - ball.diam:   # Stay in screen for Y axis
+		ball.direction = -ball.direction
+	setGoodBallDirection()
+	
+def setGoodBallDirection():
+	while (ball.direction < 0):
+		ball.direction = ball.direction + 2 * math.pi
+	ball.direction = ball.direction % (2 * math.pi)
 
 def computeReceivedData(s_index, data):
 	# 0: Up Arrow
@@ -114,12 +135,12 @@ def computeReceivedData(s_index, data):
 def rectifyPosition(i):
 	if racket_coords[i][0] < 0:
 		racket_coords[i][0] = 0
-	elif racket_coords[i][0] >= width - 37:
-		racket_coords[i][0] = width - 37
+	elif racket_coords[i][0] >= width - racket_dims[0]:
+		racket_coords[i][0] = width - racket_dims[0]
 	if racket_coords[i][1] < 0:
 		racket_coords[i][1] = 0
-	elif racket_coords[i][1] >= height - 100:
-		racket_coords[i][1] = height - 100
+	elif racket_coords[i][1] >= height - racket_dims[1]:
+		racket_coords[i][1] = height - racket_dims[1]
 
 def sendGameData():
 	data = computeDataToSend()
@@ -139,15 +160,16 @@ def computeDataToSend():
 	data = ["", ""]
 
 	# Get players position
-	for i in range(2): # Data
-		for j in range(2): # Player
+	for i in range(len(data)):
+		for j in range(len(players)):
 			for k in range(2): # Coordinates (x and y)
-				#print("i = " + str(i) + ", j = " + str(j) + ", k = " + str(k) + ", data[i] = " + data[i] + ", gonna add " + str(racket_coords[i == 1 and j or 1 - j][k]))
-				data[i] = data[i] + str(racket_coords[j if i == 1 else 1 - j][k]) + "\n"
+				currPlayerCoord = 1 - j if (i == 1 and k == 0) else j
+				#print("i = " + str(i) + ", j = " + str(currPlayerCoord) + ", k = " + str(k) + ", data[i] = " + data[i] + ", gonna add " + str(racket_coords[currPlayerCoord][k]))
+				data[i] = data[i] + str(racket_coords[currPlayerCoord][k]) + "\n"
 
 	# Get ball position
-	for i in range(2):
-		data[i] = data[i] + str(ball.x) + "\n" + str(ball.y)
+	for i in range(len(data)):
+		data[i] = data[i] + str(ball.x if i == 0 else width - ball.x) + "\n" + str(ball.y)
 
 	return data
 

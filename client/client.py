@@ -16,7 +16,7 @@ racket_coords = [[0, 0], [0, 0]]
 
 client_input = [False, False]
 
-color = (0xFF, 0xFF, 0xFF)
+bg = (0x00, 0x00, 0x00)
 
 def main():
     global host
@@ -78,11 +78,13 @@ def init():
 def play(s):
     print("Game starts")
     init()
-    ball = pygame.image.load("../resource/image/ball.png")
 
-    global rackets
+    global ball
+    global rackets	
+    ball = pygame.image.load("../resource/image/ball_new.png")
+    rackets = [None,None]
     for i in range(2):
-        rackets[i] = pygame.image.load("../resource/image/racket.png")
+        rackets[i] = pygame.image.load("../resource/image/racket_new.png")
 
     while True:
         for e in pygame.event.get():
@@ -108,13 +110,14 @@ def play(s):
         sendData()
         receiveData()
     	# Display everything
-    	screen.fill(color)
+    	screen.fill(bg)
         screen.blit(ball, ball_coords)
         for i in range(2):
             screen.blit(rackets[i], racket_coords[i])
         pygame.display.flip()
 
         # sleep 10ms, since there is no need for more than 100Hz refresh :)
+	# but the refresh is handled by the server now
         #pygame.time.delay(10)
 
 def sendData():
@@ -128,6 +131,7 @@ def receiveData():
 	data2 = data.split('|')[len(data.split('|')) - 2]
 	coords = data2.split('\n')
 
+	# Test data sent
 	#testData = "["
 	#for i in range(len(coords)):
 	#	testData = testData + coords[i] + ("," if i < len(coords) - 1 else "]")
