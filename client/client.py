@@ -50,7 +50,7 @@ def main():
         #Receive a message from the server and print it
         mr = client.recv(4096)
         mr = mr.decode()
-        print(mr + "\n")
+        print(mr.split("|")[0] + "\n")
         if(mr.strip() == "Max connection number reached"):
             break
         if(mr.find("Start") > -1):
@@ -117,7 +117,7 @@ def play(s):
         pygame.display.flip()
 
         # sleep 10ms, since there is no need for more than 100Hz refresh :)
-	# but the refresh is handled by the server now
+	    # but the refresh is handled by the server now
         #pygame.time.delay(10)
 
 def sendData():
@@ -130,6 +130,10 @@ def receiveData():
 	data = client.recv(4096)
 	data2 = data.split('|')[len(data.split('|')) - 2]
 	coords = data2.split('\n')
+
+	if data2 == "On a perdu un joueur!":
+		print(data2)
+		sys.exit()
 
 	# Test data sent
 	#testData = "["

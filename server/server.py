@@ -45,7 +45,7 @@ def acceptPlayers():
 				s2.close()
 				continue
 			s2, tmp = s.accept()
-			s2.send("Welcome to the Pong server! Waiting for another player...")
+			s2.send("Welcome to the Pong server! Waiting for another player...\n")
 			players.append(s2)
 		else:
 			print("Data received!")
@@ -71,7 +71,7 @@ def startGame():
 	global racket_coords
 	racket_coords = [[0, 0], [width - racket_dims[0], 0]]
 	for s in players:
-		s.send("Start")
+		s.send("Start|")
 	throwBall()
 	sendGameData()
 
@@ -184,10 +184,18 @@ def throwBall():
 def receive(s):
 	try:
 		data = s.recv(4096)
-	except(socket.error):
-		print("Shoot, an exception has been caught while receiving the data.\nTime to drop a nuclear bomb on that connection!")
+	except socket.error as err:
+		errno, string = err
+		print("Shoot, an exception has been caught while receiving the data.\nTime to drop a nuclear bomb on that connection!\n")
+		print(string)
 		s.close()
 		players.remove(s)
+		while len(players) > 0:
+			players[0].send("On a perdu un joueur!|")
+			players[0].close()
+			players.remove(players[0])
+			server.close()
+			sys.exit()
 		return ""
 	return data
 
