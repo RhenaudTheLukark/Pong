@@ -148,12 +148,12 @@ def rectifyPosition(i):
 		racket_coords[i][1] = height - racket_dims[1]
 
 def sendGameData(dataType):
-	if dataType == None:
-		dataType = "P"
 	data = computeDataToSend(dataType)
-	#print(str(data))
-	#for i in range(len(data)):
-	#	print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
+
+	if dataType == "S":
+		print(str(data))
+		for i in range(len(data)):
+			print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
 	
 	for i in range(2):
 		send(players[i], data[i] + "|")
@@ -174,19 +174,19 @@ def computeDataToSend(dataType):
 	# Get players position
 	for i in range(len(data)):
 		for j in range(len(players)):
-			for k in range(2): # Coordinates (x and y)
-				currPlayer = 1 - j if (i == 1 and k == 0) else j
-				if dataType == "P":
+			if dataType == "S":
+				currPlayer = 1 - j if i == 1 else j
+				data[i] = data[i] + str(score[currPlayer]) + ("\n" if j == 0 else "")
+			elif dataType == "P":
+				for k in range(2): # Coordinates (x and y)
+					currPlayer = 1 - j if (i == 1 and k == 0) else j
 					data[i] = data[i] + str(racket_coords[currPlayer][k]) + "\n"
-				elif dataType == "S":
-					data[i] = data[i] + str(score[currPlayer]) + ("\n" if i == 0 else "")
 
 	# Get ball position
 	if dataType == "P":
 		for i in range(len(data)):
 			data[i] = data[i] + str(ball.x if i == 0 else width - ball.x) + "\n" + str(ball.y)
 					
-
 	return data
 
 def throwBall():
