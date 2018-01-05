@@ -113,7 +113,12 @@ def checkBallOnSide():
 		elif ball.x < 0 or ball.x >= width:
 			print("Score for Player " + str(1 - playerId + 1) + "!")
 			score[1 - playerId] = score[1 - playerId] + 1
-			sendGameData("S")
+			if score[1 - playerId] == 1:
+				sendGameData("F", ["The game is set! You win!", "The game is set! You lost!"])
+				closeGame()
+			else:
+				sendGameData("S")
+			
 			throwBall()
 	if ball.y < 0 or ball.y >= height - ball.diam:   # Stay in screen for Y axis
 		ball.direction = -ball.direction
@@ -147,20 +152,19 @@ def rectifyPosition(i):
 	elif racket_coords[i][1] >= height - racket_dims[1]:
 		racket_coords[i][1] = height - racket_dims[1]
 
-def sendGameData(dataType):
-	data = computeDataToSend(dataType)
+def sendGameData(dataType, dataText = None):
+	data = computeDataToSend(dataType, dataText)
 
-	if dataType == "S":
-		print(str(data))
-		for i in range(len(data)):
-			print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
+	print(str(data))
+	for i in range(len(data)):
+		print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
 	
 	for i in range(2):
 		send(players[i], data[i] + "|")
 
 	#print("Data sent!")
 
-def computeDataToSend(dataType):
+def computeDataToSend(dataType, dataText):
 	# Type P:
 	# 	0: Your player
 	# 	1: Other player
@@ -169,18 +173,23 @@ def computeDataToSend(dataType):
 	# Type S:
 	# 	0: Score self
 	#	1: Score other
+
+	# Type F:
+	#	0: Text to display
 	data = [dataType + "\n", dataType + "\n"]
 
-	# Get players position
 	for i in range(len(data)):
-		for j in range(len(players)):
-			if dataType == "S":
-				currPlayer = 1 - j if i == 1 else j
-				data[i] = data[i] + str(score[currPlayer]) + ("\n" if j == 0 else "")
-			elif dataType == "P":
-				for k in range(2): # Coordinates (x and y)
-					currPlayer = 1 - j if (i == 1 and k == 0) else j
-					data[i] = data[i] + str(racket_coords[currPlayer][k]) + "\n"
+		if dataType == "F":
+			data[i] = data[i] + dataText[i if score[0] == 1 else 1 - i]
+		else:
+			for j in range(len(players)):
+				if dataType == "S":
+					currPlayer = 1 - j if i == 1 else j
+					data[i] = data[i] + str(score[currPlayer]) + ("\n" if j == 0 else "")
+				elif dataType == "P":
+					for k in range(2): # Coordinates (x and y)
+						currPlayer = 1 - j if (i == 1 and k == 0) else j
+						data[i] = data[i] + str(racket_coords[currPlayer][k]) + "\n"
 
 	# Get ball position
 	if dataType == "P":
@@ -206,12 +215,7 @@ def receive(s):
 		print(string)
 		s.close()
 		players.remove(s)
-		while len(players) > 0:
-			players[0].send("E\nOn a perdu un joueur!|")
-			players[0].close()
-			players.remove(players[0])
-			server.close()
-			sys.exit()
+		closeGame("On a perdu un joueur!")
 		return ""
 	return data
 
@@ -224,11 +228,15 @@ def send(s, data):
 		print(string)
 		s.close()
 		players.remove(s)
-		while len(players) > 0:
-			players[0].send("E\nOn a perdu un joueur!|")
-			players[0].close()
-			players.remove(players[0])
-			server.close()
-			sys.exit()
+		closeGame("On a perdu un joueur!")
+
+def closeGame(endMess = None):
+	while len(players) > 0:
+		if endMess != None:
+			players[0].send("E\n" + endMess + "|")
+		players[0].close()
+		players.remove(players[0])
+	server.close()
+	sys.exit()
 
 main()
