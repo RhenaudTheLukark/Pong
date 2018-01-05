@@ -182,6 +182,10 @@ def receiveData():
         score = data3
         score_print[0] = pygame.image.load("../resource/image/text/"+score[0]+".png")
         score_print[2] = pygame.image.load("../resource/image/text/"+score[1]+".png")
+
+    elif(data3[0] == "F"):
+        print(data3[1])
+        sys.exit()
         
                 
 ###########
