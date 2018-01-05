@@ -214,7 +214,5 @@ def send(s, data):
 			players.remove(players[0])
 			server.close()
 			sys.exit()
-		return ""
-	return data
 
 main()
