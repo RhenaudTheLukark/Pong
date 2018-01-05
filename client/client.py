@@ -18,6 +18,8 @@ client_input = [False, False]
 
 bg = (0x00, 0x00, 0x00)
 
+score = [0,0]
+
 def main():
     global host
     global port
@@ -71,8 +73,10 @@ def init():
     global width
     global height
     global screen
+    global score
     pygame.init()
     screen = pygame.display.set_mode((width, height))
+    score = [0,0]
 
 #Play an online game of Pong
 def play(s):
@@ -143,10 +147,9 @@ def receiveData():
         client.close()
         sys.exit()
     data2 = data.split('|')[len(data.split('|')) - 2]
-    coords = data2.split('\n')
-        
-    if data2 == "On a perdu un joueur!":
-        print(data2)
+    data3 = data2.split('\n')
+    if(data3[0] == "E"):
+        print(data3[1])
         sys.exit()
         
     # Test data sent
@@ -154,12 +157,20 @@ def receiveData():
     #for i in range(len(coords)):
     #        testData = testData + coords[i] + ("," if i < len(coords) - 1 else "]")
     #print("testData = " + testData)
+    
+    elif(data3[0] == "P"):
+        data3.pop(0)
+        coords = data3
+        for i in range(len(coords)):
+            if i < 4:
+                racket_coords[int(math.floor(i/2))][i % 2] = getNum(coords[i])
+            else: 
+                ball_coords[i % 2] = getNum(coords[i])
+
+    elif(data3[0] == "S"):
+        data3.pop(0)
+        score = data3
         
-    for i in range(len(coords)):
-        if i < 4:
-            racket_coords[int(math.floor(i/2))][i % 2] = getNum(coords[i])
-        else: 
-            ball_coords[i % 2] = getNum(coords[i])
                 
 ###########
 # Utility #

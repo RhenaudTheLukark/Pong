@@ -76,7 +76,7 @@ def startGame():
 	for s in players:
 		s.send("Start|")
 	throwBall()
-	sendGameData()
+	sendGameData("")
 
 def computeGame():
 	global started
@@ -98,7 +98,7 @@ def computeGame():
 	checkBallOnSide()
 	
 	# Then send data
-	sendGameData()
+	sendGameData("P")
 
 	# Wait for next frame
 	time.sleep(0.01)
