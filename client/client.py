@@ -124,29 +124,43 @@ def sendData():
 	data = ""
 	for i in range(len(client_input)):
 		data = data + ("1" if client_input[i] else "0") + ("\n" if i != len(client_input) - 1 else "")
-	client.send(data + "|")
+        try:
+	    client.send(data + "|")
+        except socket.error as err:
+            errno, string = err
+            print("Shoot, an exception has been caught while sending the data.\nTime to drop a nuclear bomb on that connection!\n")
+	    print(string)
+            client.close()
+            sys.exit()
 
 def receiveData():
+    try:
 	data = client.recv(4096)
-	data2 = data.split('|')[len(data.split('|')) - 2]
-	coords = data2.split('\n')
-
-	if data2 == "On a perdu un joueur!":
-		print(data2)
-		sys.exit()
-
+    except socket.error as err:
+        errno, string = err
+            print("Shoot, an exception has been caught while sending the data.\nTime to drop a nuclear bomb on that connection!\n")
+	    print(string)
+            client.close()
+            sys.exit()
+    data2 = data.split('|')[len(data.split('|')) - 2]
+    coords = data2.split('\n')
+        
+    if data2 == "On a perdu un joueur!":
+	print(data2)
+	sys.exit()
+        
 	# Test data sent
 	#testData = "["
 	#for i in range(len(coords)):
 	#	testData = testData + coords[i] + ("," if i < len(coords) - 1 else "]")
 	#print("testData = " + testData)
-
+        
 	for i in range(len(coords)):
-		if i < 4:
-			racket_coords[int(math.floor(i/2))][i % 2] = getNum(coords[i])
-		else: 
-			ball_coords[i % 2] = getNum(coords[i])
-
+	    if i < 4:
+		racket_coords[int(math.floor(i/2))][i % 2] = getNum(coords[i])
+	    else: 
+		ball_coords[i % 2] = getNum(coords[i])
+                
 ###########
 # Utility #
 ###########
