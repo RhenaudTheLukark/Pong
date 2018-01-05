@@ -125,9 +125,9 @@ def play(s):
         screen.blit(ball, ball_coords)
         for i in range(2):
             screen.blit(rackets[i], racket_coords[i])
-        screen.blit(score_print[1],[(width/2)-100,height/4])
+        screen.blit(score_print[0],[(width/2)-120,height/4])
         screen.blit(score_print[1],[(width/2)-30,height/4])
-        screen.blit(score_print[1],[(width/2)+100,height/4])
+        screen.blit(score_print[2],[(width/2)+60,height/4])
         pygame.display.flip()
 
         # sleep 10ms, since there is no need for more than 100Hz refresh :)
