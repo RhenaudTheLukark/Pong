@@ -149,7 +149,7 @@ def sendGameData():
 	#	print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
 	
 	for i in range(2):
-		players[i].send(data[i] + "|")
+		send(players[i], data[i] + "|")
 
 	#print("Data sent!")
 
@@ -184,6 +184,24 @@ def throwBall():
 def receive(s):
 	try:
 		data = s.recv(4096)
+	except socket.error as err:
+		errno, string = err
+		print("Shoot, an exception has been caught while receiving the data.\nTime to drop a nuclear bomb on that connection!\n")
+		print(string)
+		s.close()
+		players.remove(s)
+		while len(players) > 0:
+			players[0].send("On a perdu un joueur!|")
+			players[0].close()
+			players.remove(players[0])
+			server.close()
+			sys.exit()
+		return ""
+	return data
+
+def send(s, data):
+	try:
+		s.send(data)
 	except socket.error as err:
 		errno, string = err
 		print("Shoot, an exception has been caught while receiving the data.\nTime to drop a nuclear bomb on that connection!\n")
