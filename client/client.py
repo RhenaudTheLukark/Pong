@@ -19,6 +19,7 @@ client_input = [False, False]
 bg = (0x00, 0x00, 0x00)
 
 score = [0,0]
+score_print = [None, None, None]
 
 def main():
     global host
@@ -84,12 +85,18 @@ def play(s):
     init()
 
     global ball
-    global rackets	
+    global rackets
+    global score
+    global width
+    
     ball = pygame.image.load("../resource/image/ball_new.png")
     rackets = [None,None]
     for i in range(2):
         rackets[i] = pygame.image.load("../resource/image/racket_new.png")
-
+    score_print[0] = pygame.image.load("../resource/image/text/"+str(score[0])+".png")
+    score_print[1] = pygame.image.load("../resource/image/text/-.png")
+    score_print[2] = pygame.image.load("../resource/image/text/"+str(score[1])+".png")
+    
     while True:
         for e in pygame.event.get():
             # Check for exit
@@ -118,6 +125,9 @@ def play(s):
         screen.blit(ball, ball_coords)
         for i in range(2):
             screen.blit(rackets[i], racket_coords[i])
+        screen.blit(score_print[1],[(width/2)-100,height/4])
+        screen.blit(score_print[1],[(width/2)-30,height/4])
+        screen.blit(score_print[1],[(width/2)+100,height/4])
         pygame.display.flip()
 
         # sleep 10ms, since there is no need for more than 100Hz refresh :)
@@ -170,6 +180,8 @@ def receiveData():
     elif(data3[0] == "S"):
         data3.pop(0)
         score = data3
+        score_print[0] = pygame.image.load("../resource/image/text/"+score[0]+".png")
+        score_print[2] = pygame.image.load("../resource/image/text/"+score[1]+".png")
         
                 
 ###########
