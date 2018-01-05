@@ -16,6 +16,7 @@ server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind(('', 10000))
 server.listen(1)
 players = [] #Max 2
+score = [0, 0]
 
 racket_coords = []
 racket_dims = [20, 100]
@@ -69,7 +70,9 @@ def startGame():
 	global width
 	global height
 	global racket_coords
+	global score
 	racket_coords = [[0, 0], [width - racket_dims[0], 0]]
+	score = [0, 0]
 	for s in players:
 		s.send("Start|")
 	throwBall()
@@ -108,7 +111,9 @@ def checkBallOnSide():
 				ball.direction = math.pi - ball.direction
 				ball.speed = ball.speed + 0.2
 		elif ball.x < 0 or ball.x >= width:
-			print("Score for Player " + str(1 - playerId) + "!")
+			print("Score for Player " + str(1 - playerId + 1) + "!")
+			score[1 - playerId] = score[1 - playerId] + 1
+			sendGameData("S")
 			throwBall()
 	if ball.y < 0 or ball.y >= height - ball.diam:   # Stay in screen for Y axis
 		ball.direction = -ball.direction
@@ -142,8 +147,10 @@ def rectifyPosition(i):
 	elif racket_coords[i][1] >= height - racket_dims[1]:
 		racket_coords[i][1] = height - racket_dims[1]
 
-def sendGameData():
-	data = computeDataToSend()
+def sendGameData(dataType):
+	if dataType == None:
+		dataType = "P"
+	data = computeDataToSend(dataType)
 	#print(str(data))
 	#for i in range(len(data)):
 	#	print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
@@ -153,23 +160,32 @@ def sendGameData():
 
 	#print("Data sent!")
 
-def computeDataToSend():
-	# 0: Your player
-	# 1: Other player
-	# 2: Ball
-	data = ["", ""]
+def computeDataToSend(dataType):
+	# Type P:
+	# 	0: Your player
+	# 	1: Other player
+	# 	2: Ball
+
+	# Type S:
+	# 	0: Score self
+	#	1: Score other
+	data = [dataType + "\n", dataType + "\n"]
 
 	# Get players position
 	for i in range(len(data)):
 		for j in range(len(players)):
 			for k in range(2): # Coordinates (x and y)
-				currPlayerCoord = 1 - j if (i == 1 and k == 0) else j
-				#print("i = " + str(i) + ", j = " + str(currPlayerCoord) + ", k = " + str(k) + ", data[i] = " + data[i] + ", gonna add " + str(racket_coords[currPlayerCoord][k]))
-				data[i] = data[i] + str(racket_coords[currPlayerCoord][k]) + "\n"
+				currPlayer = 1 - j if (i == 1 and k == 0) else j
+				if dataType == "P":
+					data[i] = data[i] + str(racket_coords[currPlayer][k]) + "\n"
+				elif dataType == "S":
+					data[i] = data[i] + str(score[currPlayer]) + ("\n" if i == 0 else "")
 
 	# Get ball position
-	for i in range(len(data)):
-		data[i] = data[i] + str(ball.x if i == 0 else width - ball.x) + "\n" + str(ball.y)
+	if dataType == "P":
+		for i in range(len(data)):
+			data[i] = data[i] + str(ball.x if i == 0 else width - ball.x) + "\n" + str(ball.y)
+					
 
 	return data
 
@@ -191,7 +207,7 @@ def receive(s):
 		s.close()
 		players.remove(s)
 		while len(players) > 0:
-			players[0].send("On a perdu un joueur!|")
+			players[0].send("E\nOn a perdu un joueur!|")
 			players[0].close()
 			players.remove(players[0])
 			server.close()
@@ -209,7 +225,7 @@ def send(s, data):
 		s.close()
 		players.remove(s)
 		while len(players) > 0:
-			players[0].send("On a perdu un joueur!|")
+			players[0].send("E\nOn a perdu un joueur!|")
 			players[0].close()
 			players.remove(players[0])
 			server.close()
