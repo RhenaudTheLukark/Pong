@@ -99,6 +99,7 @@ def play(s):
     global rackets
     global score
     global width
+    global item
     
     ball = pygame.image.load("../resource/image/ball_new.png")
     rackets = [None,None]
@@ -135,14 +136,14 @@ def play(s):
         receiveData()
     	# Display everything
     	screen.fill(bg)
-        screen.blit(ball, ball_coords)
         for i in range(2):
             screen.blit(rackets[i], racket_coords[i])
-        for i in range(len(item)):
-            screen.blit(item_print[item[i][1]],[item[i][2],item[i][3]])
         screen.blit(score_print[0],[(width/2)-120,height/4])
         screen.blit(score_print[1],[(width/2)-30,height/4])
         screen.blit(score_print[2],[(width/2)+60,height/4])
+        for i in range(len(item)):
+            screen.blit(item_print[item[i][1]],[item[i][2],item[i][3]])
+        screen.blit(ball, ball_coords)
         pygame.display.flip()
 
         # sleep 10ms, since there is no need for more than 100Hz refresh :)
@@ -173,21 +174,22 @@ def receiveData():
         sys.exit()
     data2 = data.split('|')[len(data.split('|')) - 2]
     data3 = data2.split('\n')
-
-    #Error case
-    if(data3[0] == "E"):
-        print(data3[1])
-        sys.exit()
         
     # Test data sent
     #testData = "["
     #for i in range(len(coords)):
     #        testData = testData + coords[i] + ("," if i < len(coords) - 1 else "]")
     #print("testData = " + testData)
+
+    #Error case
+    if(data3[0] == "E"):
+        print(data3[1])
+        sys.exit()
     
     #Position case
     elif(data3[0] == "P"):
         data3.pop(0)
+        global item
         item = []
         coords = data3
         for i in range(len(coords)):
@@ -197,11 +199,12 @@ def receiveData():
                 ball_coords[i % 2] = getNum(coords[i])
             elif i < 8:
                 effect[i % 2] = getNum(coords[i])
-        for i in range(8,len(coords),4):
-            item_temp = [getNum(coords[i]),getNum(coords[i+1]),getNum(coords[i+2]),getNum(coords[i+3])]
+	item_number = 0
+        while len(coords) >= 8 + item_number * 4 + 3:
+            temp_index = 8 + item_number * 4
+            item_temp = [getNum(coords[temp_index]),getNum(coords[temp_index+1]),getNum(coords[temp_index+2]),getNum(coords[temp_index+3])]
             item.append(item_temp)
-            
-                
+            item_number = item_number + 1
 
     #Score case
     elif(data3[0] == "S"):

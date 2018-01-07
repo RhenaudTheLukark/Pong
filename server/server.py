@@ -25,7 +25,7 @@ racket_dims = [20, 100]
 ball = None
 
 item = []
-item_timer = random.randrange(5, 10)
+item_timer = float(random.randrange(5, 10)) / 50
 last_clock = 0
 
 #Main function of the program
@@ -102,19 +102,22 @@ def computeGame():
 	ball.update()
 	checkBallOnSide()
 
+	global item
 	# Items	
-        for i in range(len(item)):
-                item[i].update()
-	        if checkItemOnSide(item[i], i):
-			i = i - 1
+	index_item = 0
+	while index_item < len(item):
+	        item[index_item].update()
+		if not checkItemOnSide(item[index_item], index_item):
+			index_item = index_item + 1
 
 	global last_clock
 	global item_timer
 	curr_time = time.clock()
-	item_timer = item_timer if last_clock == 0 else item_timer - (last_clock - curr_time)
+	item_timer = item_timer if last_clock == 0 else item_timer - (curr_time - last_clock)
 	last_clock = curr_time
 	if item_timer <= 0: 
 		throwItem()
+		item_timer = float(random.randrange(5, 10)) / 50
 	
 	# Then send data
 	sendGameData("P")
@@ -142,19 +145,20 @@ def checkBallOnSide():
 		ball.direction = -ball.direction
 	setGoodBallDirection()
 
-def checkItemOnSide(item, index):
-	playerId = 0 if item.x - racket_dims[0] < 0 else 1 if item.x + racket_dims[0] >= width else -1
+def checkItemOnSide(localItem, index):
+	global item
+	playerId = 0 if localItem.x - racket_dims[0] < 0 else 1 if localItem.x + racket_dims[0] >= width else -1
 	if playerId >= 0:
-		if item.y + item.dim >= racket_coords[playerId][1] and item.y <= racket_coords[playerId][1] + racket_dims[1]:
+		if localItem.y + localItem.dim >= racket_coords[playerId][1] and localItem.y <= racket_coords[playerId][1] + racket_dims[1]:
 			# Compute item here
 			print("Item recu!")
 			item.remove(item[index])
-			return true
-		elif item.x < -item.dim or item.x >= width:
+			return True
+		elif localItem.x < -localItem.dim or localItem.x >= width:
 			# Destroy item
 			item.remove(item[index])
-			return true
-	return false
+			return True
+	return False
 
 def setGoodBallDirection():
 	while (ball.direction < 0):
@@ -187,9 +191,10 @@ def rectifyPosition(i):
 def sendGameData(dataType, dataText = None):
 	data = computeDataToSend(dataType, dataText)
 
-	#print(str(data))
-	#for i in range(len(data)):
-	#	print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
+	#if dataType == "P":
+	#	print(str(data))
+	#	for i in range(len(data)):
+	#		print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
 	
 	for i in range(2):
 		send(players[i], data[i] + "|")

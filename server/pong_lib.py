@@ -38,13 +38,13 @@ class BallServer:
 
 class ItemServer:
     def __init__(self, n):
-	self.x = 4 * width / 10 if random.randrange else 6 * width / 10
+	self.x = 4 * width / 10 if random.randrange(0, 2) >= 1 else 6 * width / 10
 	self.y = 0 #Temporary
-	self.speed = 2
+	self.speed = 1
 	self.dim = 40
         self.type = random.randrange(1, 4)
         self.id = n
 	self.y = random.randrange(0, height - self.dim)
             
     def update(self):
-	self.x = self.x + self.speed * 1 if self.x > width / 2 else -1
+	self.x = self.x + self.speed * (1 if self.x > width / 2 else -1)
