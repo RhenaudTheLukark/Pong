@@ -113,7 +113,7 @@ def checkBallOnSide():
 		elif ball.x < 0 or ball.x >= width:
 			print("Score for Player " + str(1 - playerId + 1) + "!")
 			score[1 - playerId] = score[1 - playerId] + 1
-			if score[1 - playerId] == 1:
+			if score[1 - playerId] == 5:
 				sendGameData("F", ["The game is set! You win!", "The game is set! You lost!"])
 				closeGame()
 			else:
@@ -155,9 +155,9 @@ def rectifyPosition(i):
 def sendGameData(dataType, dataText = None):
 	data = computeDataToSend(dataType, dataText)
 
-	print(str(data))
-	for i in range(len(data)):
-		print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
+	#print(str(data))
+	#for i in range(len(data)):
+	#	print("\nBegin data #" + str(i + 1) + ":\n" + data[i])
 	
 	for i in range(2):
 		send(players[i], data[i] + "|")
@@ -180,7 +180,7 @@ def computeDataToSend(dataType, dataText):
 
 	for i in range(len(data)):
 		if dataType == "F":
-			data[i] = data[i] + dataText[i if score[0] == 1 else 1 - i]
+			data[i] = data[i] + dataText[i if score[0] == 5 else 1 - i]
 		else:
 			for j in range(len(players)):
 				if dataType == "S":
