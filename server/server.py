@@ -23,9 +23,7 @@ racket_dims = [20, 100]
 
 ball = None
 
-item = [None, None]
-
-
+item = []
 
 #Main function of the program
 def main():
@@ -99,11 +97,13 @@ def computeGame():
 	
 	# Compute ball
 	ball.update()
-        for i in range(2):
-                if item[i] != None:
-                        item[i].update()
+        for i in range(len(item)):
+                item[i].update()
+
 	checkBallOnSide()
-        checkItemOnSide()
+	for i in range(len(item)):
+	        if checkItemOnSide(item[i], i):
+			i = i - 1
 	
 	# Then send data
 	sendGameData("P")
@@ -118,7 +118,7 @@ def checkBallOnSide():
 			if (playerId == 1 and (ball.direction < math.pi / 2 or ball.direction > 3 * math.pi / 2)) or (playerId == 0 and (ball.direction > math.pi / 2 and ball.direction < 3 * math.pi / 2)): 
 				ball.direction = math.pi - ball.direction
 				ball.speed = ball.speed + 0.2
-		elif ball.x < 0 or ball.x >= width:
+		elif ball.x < 0 or ball.x >= width - ball.diam:
 			print("Score for Player " + str(1 - playerId + 1) + "!")
 			score[1 - playerId] = score[1 - playerId] + 1
 			if score[1 - playerId] == 5:
@@ -132,7 +132,19 @@ def checkBallOnSide():
 		ball.direction = -ball.direction
 	setGoodBallDirection()
 
-def checkItemOnSide():
+def checkItemOnSide(item, index):
+	playerId = 0 if item.x - racket_dims[0] < 0 else 1 if item.x + racket_dims[0] >= width else -1
+	if playerId >= 0:
+		if item.y + item.dim >= racket_coords[playerId][1] and item.y <= racket_coords[playerId][1] + racket_dims[1]:
+			# Compute item here
+			print("Item recu!")
+			item.remove(item[index])
+			return true
+		elif item.x < -item.dim or item.x >= width:
+			# Destroy item
+			item.remove(item[index])
+			return true
+	return false
         
 	
 def setGoodBallDirection():
@@ -206,7 +218,7 @@ def computeDataToSend(dataType, dataText):
 	if dataType == "P":
 		for i in range(len(data)):
 			data[i] = data[i] + str(ball.x if i == 0 else width - ball.x) + "\n" + str(ball.y)
-                        if
+                        # Ajouter bonus
 					
 	return data
 
