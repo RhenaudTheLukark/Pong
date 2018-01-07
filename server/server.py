@@ -17,6 +17,7 @@ server.bind(('', 10000))
 server.listen(1)
 players = [] #Max 2
 score = [0, 0]
+effect = [0, 0]
 
 racket_coords = []
 racket_dims = [20, 100]
@@ -24,6 +25,8 @@ racket_dims = [20, 100]
 ball = None
 
 item = []
+item_timer = random.randrange(5, 10)
+last_clock = 0
 
 #Main function of the program
 def main():
@@ -97,13 +100,21 @@ def computeGame():
 	
 	# Compute ball
 	ball.update()
+	checkBallOnSide()
+
+	# Items	
         for i in range(len(item)):
                 item[i].update()
-
-	checkBallOnSide()
-	for i in range(len(item)):
 	        if checkItemOnSide(item[i], i):
 			i = i - 1
+
+	global last_clock
+	global item_timer
+	curr_time = time.clock()
+	item_timer = item_timer if last_clock == 0 else item_timer - (last_clock - curr_time)
+	last_clock = curr_time
+	if item_timer <= 0: 
+		throwItem()
 	
 	# Then send data
 	sendGameData("P")
@@ -126,8 +137,7 @@ def checkBallOnSide():
 				closeGame()
 			else:
 				sendGameData("S")
-			
-			throwBall()
+				throwBall()
 	if ball.y < 0 or ball.y >= height - ball.diam:   # Stay in screen for Y axis
 		ball.direction = -ball.direction
 	setGoodBallDirection()
@@ -145,8 +155,7 @@ def checkItemOnSide(item, index):
 			item.remove(item[index])
 			return true
 	return false
-        
-	
+
 def setGoodBallDirection():
 	while (ball.direction < 0):
 		ball.direction = ball.direction + 2 * math.pi
@@ -217,8 +226,10 @@ def computeDataToSend(dataType, dataText):
 	# Get ball position
 	if dataType == "P":
 		for i in range(len(data)):
-			data[i] = data[i] + str(ball.x if i == 0 else width - ball.x) + "\n" + str(ball.y)
-                        # Ajouter bonus
+			data[i] = data[i] + str(ball.x if i == 0 else width - ball.x) + "\n" + str(ball.y) + "\n"
+			data[i] = data[i] + str(effect[i if i == 0 else 1 - i]) + "\n" + str(effect[1 - i if i == 0 else i])
+			for j in range(len(item)):
+				data[i] = data[i] + "\n" + str(item[j].id) + "\n" + str(item[j].type) + "\n" + str(item[j].x if i == 0 else width - item[j].x - item[j].dim) + "\n" + str(item[j].y)
 					
 	return data
 
@@ -228,10 +239,7 @@ def throwBall():
 
 def throwItem():
         global item
-        if item[0] == None :
-                item[0] = ItemServer(math.randrange(4),0)
-        elif item[1] == None :
-                item[1] = ItemServer(math.randrange(4),1)
+	item.append(ItemServer(0 if len(item) == 0 else item[0].id + 1))
 
 
 ###########

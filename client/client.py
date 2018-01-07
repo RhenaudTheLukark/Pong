@@ -28,6 +28,7 @@ score = [0,0]
 score_print = [None, None, None]
 
 item = []
+item_print = []
 
 effect = [0,0]
 
@@ -106,8 +107,8 @@ def play(s):
     score_print[0] = pygame.image.load("../resource/image/text/"+str(score[0])+".png")
     score_print[1] = pygame.image.load("../resource/image/text/-.png")
     score_print[2] = pygame.image.load("../resource/image/text/"+str(score[1])+".png")
-    for i in range(1,5):
-        item_print[i] = pygame.image.load("../resource/image/item/item"+str(i)+".png")
+    for i in range(1, 5):
+        item_print.append(pygame.image.load("../resource/image/item/item"+str(i)+".png"))
     
     while True:
         for e in pygame.event.get():
@@ -195,7 +196,7 @@ def receiveData():
             elif i < 6: 
                 ball_coords[i % 2] = getNum(coords[i])
             elif i < 8:
-                effects[i % 2] = getNum(coords[i])
+                effect[i % 2] = getNum(coords[i])
         for i in range(8,len(coords),4):
             item_temp = [getNum(coords[i]),getNum(coords[i+1]),getNum(coords[i+2]),getNum(coords[i+3])]
             item.append(item_temp)
