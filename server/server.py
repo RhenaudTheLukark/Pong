@@ -23,6 +23,10 @@ racket_dims = [20, 100]
 
 ball = None
 
+item = [None, None]
+
+
+
 #Main function of the program
 def main():
 	global started
@@ -95,7 +99,11 @@ def computeGame():
 	
 	# Compute ball
 	ball.update()
+        for i in range(2):
+                if item[i] != None:
+                        item[i].update()
 	checkBallOnSide()
+        checkItemOnSide()
 	
 	# Then send data
 	sendGameData("P")
@@ -123,6 +131,9 @@ def checkBallOnSide():
 	if ball.y < 0 or ball.y >= height - ball.diam:   # Stay in screen for Y axis
 		ball.direction = -ball.direction
 	setGoodBallDirection()
+
+def checkItemOnSide():
+        
 	
 def setGoodBallDirection():
 	while (ball.direction < 0):
@@ -195,12 +206,21 @@ def computeDataToSend(dataType, dataText):
 	if dataType == "P":
 		for i in range(len(data)):
 			data[i] = data[i] + str(ball.x if i == 0 else width - ball.x) + "\n" + str(ball.y)
+                        if
 					
 	return data
 
 def throwBall():
 	global ball
 	ball = BallServer()
+
+def throwItem():
+        global item
+        if item[0] == None :
+                item[0] = ItemServer(math.randrange(4),0)
+        elif item[1] == None :
+                item[1] = ItemServer(math.randrange(4),1)
+
 
 ###########
 # Utility #
