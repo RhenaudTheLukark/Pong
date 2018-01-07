@@ -27,8 +27,9 @@ bg = (0x00, 0x00, 0x00)
 score = [0,0]
 score_print = [None, None, None]
 
-item = None
-item_coords = [0, 0]
+item = []
+
+effect = [0,0]
 
 def main():
     global host
@@ -105,6 +106,8 @@ def play(s):
     score_print[0] = pygame.image.load("../resource/image/text/"+str(score[0])+".png")
     score_print[1] = pygame.image.load("../resource/image/text/-.png")
     score_print[2] = pygame.image.load("../resource/image/text/"+str(score[1])+".png")
+    for i in range(1,5):
+        item_print[i] = pygame.image.load("../resource/image/item/item"+str(i)+".png")
     
     while True:
         for e in pygame.event.get():
@@ -134,6 +137,8 @@ def play(s):
         screen.blit(ball, ball_coords)
         for i in range(2):
             screen.blit(rackets[i], racket_coords[i])
+        for i in range(len(item)):
+            screen.blit(item_print[item[i][1]],[item[i][2],item[i][3]])
         screen.blit(score_print[0],[(width/2)-120,height/4])
         screen.blit(score_print[1],[(width/2)-30,height/4])
         screen.blit(score_print[2],[(width/2)+60,height/4])
@@ -182,12 +187,20 @@ def receiveData():
     #Position case
     elif(data3[0] == "P"):
         data3.pop(0)
+        item = []
         coords = data3
         for i in range(len(coords)):
             if i < 4:
                 racket_coords[int(math.floor(i/2))][i % 2] = getNum(coords[i])
-            else: 
+            elif i < 6: 
                 ball_coords[i % 2] = getNum(coords[i])
+            elif i < 8:
+                effects[i % 2] = getNum(coords[i])
+        for i in range(8,len(coords),4):
+            item_temp = [getNum(coords[i]),getNum(coords[i+1]),getNum(coords[i+2]),getNum(coords[i+3])]
+            item.append(item_temp)
+            
+                
 
     #Score case
     elif(data3[0] == "S"):
@@ -200,10 +213,6 @@ def receiveData():
     elif(data3[0] == "F"):
         print(data3[1])
         sys.exit()
-
-    #Item case
-    elif(data3[0] == "I"):
-        data3.pop(0)
 
     #Default case
     else:
