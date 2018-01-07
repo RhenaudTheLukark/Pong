@@ -2,8 +2,14 @@
 
 import socket
 import sys
-from client_functions import *
-from pong_lib import *
+
+##Essai sans la pong_lib ##
+#from pong_lib import *
+import pygame
+import math
+width = 800
+height = 600
+##fin##
 
 #server port
 port = 10000
@@ -20,6 +26,9 @@ bg = (0x00, 0x00, 0x00)
 
 score = [0,0]
 score_print = [None, None, None]
+
+item = None
+item_coords = [0, 0]
 
 def main():
     global host
@@ -158,6 +167,8 @@ def receiveData():
         sys.exit()
     data2 = data.split('|')[len(data.split('|')) - 2]
     data3 = data2.split('\n')
+
+    #Error case
     if(data3[0] == "E"):
         print(data3[1])
         sys.exit()
@@ -168,6 +179,7 @@ def receiveData():
     #        testData = testData + coords[i] + ("," if i < len(coords) - 1 else "]")
     #print("testData = " + testData)
     
+    #Position case
     elif(data3[0] == "P"):
         data3.pop(0)
         coords = data3
@@ -177,15 +189,25 @@ def receiveData():
             else: 
                 ball_coords[i % 2] = getNum(coords[i])
 
+    #Score case
     elif(data3[0] == "S"):
         data3.pop(0)
         score = data3
         score_print[0] = pygame.image.load("../resource/image/text/"+score[0]+".png")
         score_print[2] = pygame.image.load("../resource/image/text/"+score[1]+".png")
 
+    #End of the game case
     elif(data3[0] == "F"):
         print(data3[1])
         sys.exit()
+
+    #Item case
+    elif(data3[0] == "I"):
+        data3.pop(0)
+
+    #Default case
+    else:
+        print(data3[0])
         
                 
 ###########
