@@ -185,11 +185,11 @@ def receiveData():
     data3 = data2.split('\n')
         
     # Test data sent
-    testData = "["
-    if (data3[0] == "I"):
-        for i in range(len(data3)):
-            testData = testData + data3[i] + ("," if i < len(data3) - 1 else "]")
-        print("testData = " + testData)
+    #testData = "["
+    #if (data3[0] == "I"):
+    #    for i in range(len(data3)):
+    #        testData = testData + data3[i] + ("," if i < len(data3) - 1 else "]")
+    #    print("testData = " + testData)
 
     #Error case
     if(data3[0] == "E"):
