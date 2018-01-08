@@ -3,18 +3,18 @@
 import socket
 import sys
 
-##Essai sans la pong_lib ##
-#from pong_lib import *
 import pygame
 import math
+
+# Dimension of the game window
 width = 800
 height = 600
-##fin##
 
-#server port
+# Server port
 port = 10000
 host = 0
 
+# Game variables
 ball = None
 ball_coords = [0, 0]
 rackets = [None, None]
@@ -32,12 +32,13 @@ item_print = []
 
 effect = [0,0]
 
+# Main function of the programm
 def main():
     global host
     global port
     global client
 
-    #verify the host was given
+    # Verify the host was given
     try:
         host = sys.argv[1]
     except(IndexError):
@@ -46,22 +47,23 @@ def main():
 
     print("Connexion au serveur "+host+" en cours...\n")
 
-    #Initialise the client
+    # Initialise the client
     client = socket.socket(socket.AF_INET6,socket.SOCK_STREAM)
 
-    #Set the option of freeing the port as soon as possible on
+    # Set the option of freeing the port as soon as possible on
     client.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 
-    #Try to connect to the host
+    # Try to connect to the host
     try:
         client.connect((host,port))
+    # Case of a connection error
     except(socket.error):
         print("Connexion echouee. Il doit etre deconnecte ou inexistant")
         return
     
-    #Start the connection loop
+    # Start the connection loop
     while True:
-        #Receive a message from the server and print it
+        # Receive a message from the server and print it
         mr = client.recv(4096)
         mr = mr.decode()
         print(mr.split("|")[0] + "\n")
@@ -69,18 +71,12 @@ def main():
             break
         if(mr.find("Start") > -1):
             play(client)
-        #Wait for an input
-        #ms = raw_input("> ")
-
-        #Send the input
-        #ms = ms.encode()
-        #client.send(ms)
 
 
-    #Stop the client
+    # Stop the client
     client.close()
 
-#Initialise Pygame
+# Initialise Pygame
 def init():
     global width
     global height
@@ -90,7 +86,7 @@ def init():
     screen = pygame.display.set_mode((width, height))
     score = [0,0]
 
-#Play an online game of Pong
+# Play an online game of Pong
 def play(s):
     print("Game starts")
     init()
@@ -101,7 +97,8 @@ def play(s):
     global width
     global item
     global effect
-    
+
+    # Loading all the images
     ball = pygame.image.load("../resource/image/ball_new.png")
     rackets = [None,None]
     for i in range(2):
@@ -112,7 +109,8 @@ def play(s):
     item_print.append(None)
     for i in range(1, 5):
         item_print.append(pygame.image.load("../resource/image/item/item"+str(i)+".png"))
-    
+
+    # Cheking the input
     while True:
         for e in pygame.event.get():
             # Check for exit
@@ -134,8 +132,11 @@ def play(s):
                 if e.key == pygame.K_DOWN:
                     #update downFalse
                     client_input[1] = False
+                    
+        # Communication with the server
         sendData()
         receiveData()
+        
     	# Display everything
     	screen.fill(bg)
         for i in range(2):
@@ -155,10 +156,7 @@ def play(s):
         screen.blit(ball, ball_coords)
         pygame.display.flip()
 
-        # sleep 10ms, since there is no need for more than 100Hz refresh :)
-	    # but the refresh is handled by the server now
-        #pygame.time.delay(10)
-
+# Send the data to the server
 def sendData():
     data = ""
     for i in range(len(client_input)):
@@ -172,6 +170,7 @@ def sendData():
         client.close()
         sys.exit()
 
+# Receive the data from the server
 def receiveData():
     global effect
     try:
@@ -243,10 +242,14 @@ def receiveData():
 # Utility #
 ###########
 
+# Transform a string into an integer or a float
 def getNum(string):
 	if string.find(".") > -1:
 		return float(string)
 	else:
 		return int(string)
 
+
+
+#Call of the main function
 main()
