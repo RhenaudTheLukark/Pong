@@ -141,7 +141,7 @@ def play(s):
     	screen.fill(bg)
         for i in range(2):
             if(effect[i] == 1):
-                screen.blit(pygame.transform.scale(rackets[i],(20,120)), racket_coords[i])
+                screen.blit(pygame.transform.scale(rackets[i],(20,125)), racket_coords[i])
             elif(effect[i] == 2):
                 screen.blit(pygame.transform.scale(rackets[i],(20,80)), racket_coords[i])
             else:
