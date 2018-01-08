@@ -34,7 +34,7 @@ class ItemServer:
 		self.y = 0 #Temporary
 		self.speed = 1
 		self.dim = 40
-	        self.type = random.randrange(1, 4)
+	        self.type = random.randrange(1, 5)
 	        self.id = n
 		self.y = random.randrange(0, height - self.dim)
             
