@@ -100,6 +100,7 @@ def play(s):
     global score
     global width
     global item
+    global effect
     
     ball = pygame.image.load("../resource/image/ball_new.png")
     rackets = [None,None]
@@ -137,7 +138,12 @@ def play(s):
     	# Display everything
     	screen.fill(bg)
         for i in range(2):
-            screen.blit(rackets[i], racket_coords[i])
+            if(effect[i] == 1):
+                screen.blit(pygame.transform.scale(rackets[i],(20,120)), racket_coords[i])
+            elif(effect[i] == 2):
+                screen.blit(pygame.transform.scale(rackets[i],(20,80)), racket_coords[i])
+            else:
+                screen.blit(pygame.transform.scale(rackets[i],(20,100)), racket_coords[i])
         for i in range(len(item)):
             screen.blit(item_print[item[i][1]-1],[item[i][2],item[i][3]])
         screen.blit(score_print[0],[(width/2)-120,height/4])
@@ -166,6 +172,7 @@ def sendData():
         sys.exit()
 
 def receiveData():
+    global effect
     try:
         data = client.recv(4096)
     except socket.error as err:
@@ -220,6 +227,11 @@ def receiveData():
         print(data3[1])
         sys.exit()
 
+    #Item activation case
+    elif(data3[0] == "I"):
+        data3.pop(0)
+        effect = data3
+        
     #Default case
     else:
         print(data3[0])
