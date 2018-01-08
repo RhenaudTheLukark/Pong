@@ -8,14 +8,6 @@ import math
 width = 800
 height = 600
 
-#Load the parameters of the different objects used for the game
-#Unused
-def load(ball, rackets):
-    ball = pygame.image.load("../resource/image/ball_new.png")
-    rackets = [None,None]
-    for i in range(2):
-        rackets[i] = pygame.image.load("../resource/image/racket_new.png")
-
 class BallServer:
 	def __init__(self):
 		self.x = width / 2
@@ -37,14 +29,14 @@ class BallServer:
 		self.y = self.y + self.speed * math.sin(self.direction)
 
 class ItemServer:
-    def __init__(self, n):
-	self.x = 4 * width / 10 if random.randrange(0, 2) >= 1 else 6 * width / 10
-	self.y = 0 #Temporary
-	self.speed = 1
-	self.dim = 40
-        self.type = random.randrange(1, 4)
-        self.id = n
-	self.y = random.randrange(0, height - self.dim)
+	def __init__(self, n):
+		self.x = 4 * width / 10 if random.randrange(0, 2) >= 1 else 6 * width / 10
+		self.y = 0 #Temporary
+		self.speed = 1
+		self.dim = 40
+	        self.type = random.randrange(1, 4)
+	        self.id = n
+		self.y = random.randrange(0, height - self.dim)
             
-    def update(self):
-	self.x = self.x + self.speed * (1 if self.x > width / 2 else -1)
+	def update(self):
+		self.x = self.x + self.speed * (1 if self.x > width / 2 else -1)

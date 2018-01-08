@@ -109,6 +109,7 @@ def play(s):
     score_print[0] = pygame.image.load("../resource/image/text/"+str(score[0])+".png")
     score_print[1] = pygame.image.load("../resource/image/text/-.png")
     score_print[2] = pygame.image.load("../resource/image/text/"+str(score[1])+".png")
+    item_print.append(None)
     for i in range(1, 5):
         item_print.append(pygame.image.load("../resource/image/item/item"+str(i)+".png"))
     
@@ -145,7 +146,7 @@ def play(s):
             else:
                 screen.blit(pygame.transform.scale(rackets[i],(20,100)), racket_coords[i])
         for i in range(len(item)):
-            screen.blit(item_print[item[i][1]-1],[item[i][2],item[i][3]])
+            screen.blit(item_print[item[i][1]],[item[i][2],item[i][3]])
         screen.blit(score_print[0],[(width/2)-120,height/4])
         screen.blit(score_print[1],[(width/2)-30,height/4])
         screen.blit(score_print[2],[(width/2)+60,height/4])
@@ -185,10 +186,11 @@ def receiveData():
     data3 = data2.split('\n')
         
     # Test data sent
-    #testData = "["
-    #for i in range(len(coords)):
-    #        testData = testData + coords[i] + ("," if i < len(coords) - 1 else "]")
-    #print("testData = " + testData)
+    testData = "["
+    if (data3[0] == "I"):
+        for i in range(len(data3)):
+            testData = testData + data3[i] + ("," if i < len(data3) - 1 else "]")
+        print("testData = " + testData)
 
     #Error case
     if(data3[0] == "E"):

@@ -8,7 +8,6 @@ import random
 import math
 import time
 
-sys.path.insert(0, "../client")
 from pong_lib import *
 
 server = socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0)
@@ -18,9 +17,11 @@ server.listen(1)
 players = [] #Max 2
 score = [0, 0]
 effect = [0, 0]
+effect_timer = [0, 0]
 
 racket_coords = []
 racket_dims = [20, 100]
+racket_dims_effect = [125, 80]
 
 ball = None
 
@@ -115,6 +116,7 @@ def computeGame():
 	curr_time = time.clock()
 	item_timer = item_timer if last_clock == 0 else item_timer - (curr_time - last_clock)
 	last_clock = curr_time
+	print(item_timer)
 	if item_timer <= 0: 
 		throwItem()
 		item_timer = float(random.randrange(5, 10)) / 50
@@ -152,6 +154,8 @@ def checkItemOnSide(localItem, index):
 		if localItem.y + localItem.dim >= racket_coords[playerId][1] and localItem.y <= racket_coords[playerId][1] + racket_dims[1]:
 			# Compute item here
 			print("Item recu!")
+			effect[playerId] = localItem.type
+			sendGameData("I")
 			item.remove(item[index])
 			return True
 		elif localItem.x < -localItem.dim or localItem.x >= width:
@@ -213,11 +217,17 @@ def computeDataToSend(dataType, dataText):
 
 	# Type F:
 	#	0: Text to display
+
+	# Type I:
+	#	0: Effet joueur 1
+	#	1: Effet joueur 2
 	data = [dataType + "\n", dataType + "\n"]
 
 	for i in range(len(data)):
 		if dataType == "F":
 			data[i] = data[i] + dataText[i if score[0] == 5 else 1 - i]
+		elif dataType == "I":
+			data[i] = data[i] + str(effect[i if i == 0 else 1 - i]) + "\n" + str(effect[1 - i if i == 0 else i])
 		else:
 			for j in range(len(players)):
 				if dataType == "S":
