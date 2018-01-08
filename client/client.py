@@ -138,11 +138,8 @@ def play(s):
     	screen.fill(bg)
         for i in range(2):
             screen.blit(rackets[i], racket_coords[i])
-<<<<<<< HEAD
-=======
         for i in range(len(item)):
             screen.blit(item_print[item[i][1]-1],[item[i][2],item[i][3]])
->>>>>>> 0a28c41bd0e50016243c656f3df4e3e235c1c5b7
         screen.blit(score_print[0],[(width/2)-120,height/4])
         screen.blit(score_print[1],[(width/2)-30,height/4])
         screen.blit(score_print[2],[(width/2)+60,height/4])
