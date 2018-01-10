@@ -139,16 +139,16 @@ def computeGame():
 
 # Mirrors the ball if it hits a racket, gives a point and throw the ball again if it reached a side.
 def checkBallOnSide():
-    # Stores player ID who handles the ball 
+	# Stores player ID who handles the ball 
 	playerId = 0 if ball.x - racket_dims[0] < 0 else 1 if ball.x + ball.diam + racket_dims[0] >= width else -1
 	if playerId >= 0:
-        # If collision with player, mirror the ball's direction to the other side
-        racket_height = racket_dims[1] if (effect[playerId] > 2 or effect[playerId] == 0) else racket_dims_effect[effect[playerId] - 1]
+		# If collision with player, mirror the ball's direction to the other side
+		racket_height = (racket_dims[1] if (effect[playerId] > 2 or effect[playerId] == 0) else racket_dims_effect[effect[playerId] - 1])
 		if ball.y + ball.diam >= racket_coords[playerId][1] and ball.y <= racket_coords[playerId][1] + racket_height:
 			if (playerId == 1 and (ball.direction < math.pi / 2 or ball.direction > 3 * math.pi / 2)) or (playerId == 0 and (ball.direction > math.pi / 2 and ball.direction < 3 * math.pi / 2)): 
 				ball.direction = math.pi - ball.direction
 				ball.speed = ball.speed + 0.2
-        # If the ball reaches the border, it increases the other player's score
+        	# If the ball reaches the border, it increases the other player's score
 		elif ball.x < 0 or ball.x + ball.diam >= width:
 			print("Score for Player " + str(1 - playerId + 1) + "!")
 			score[1 - playerId] = score[1 - playerId] + 1
@@ -158,7 +158,7 @@ def checkBallOnSide():
 			else:
 				sendGameData("S")
 				throwBall()
-    # Stay in screen for Y axis
+	# Stay in screen for Y axis
 	if ball.y < 0 or ball.y >= height - ball.diam:
 		ball.direction = -ball.direction
 	setGoodBallDirection()
@@ -166,7 +166,7 @@ def checkBallOnSide():
 # Applies the bonus if it hits a racket, deletes it if it goes out of the screen completely.
 def checkItemOnSide(localItem, index):
 	global item
-	playerId = 0 if localItem.x - racket_dims[0] < 0 else 1 if localItem.x + racket_dims[0] >= width else -1
+	playerId = 0 if localItem.x - racket_dims[0] < 0 else 1 if localItem.x + racket_dims[0] + localItem.dim >= width else -1
 	if playerId >= 0:
         # If collision with player, applies the effect
 		if localItem.y + localItem.dim >= racket_coords[playerId][1] and localItem.y <= racket_coords[playerId][1] + racket_dims[1]:
@@ -175,13 +175,13 @@ def checkItemOnSide(localItem, index):
 			sendGameData("I")
 			item.remove(item[index])
 			return True
-        # If the item reaches the border, it is destroyed
-        elif localItem.x < -localItem.dim or localItem.x >= width:
+        	# If the item reaches the border, it is destroyed
+        	elif localItem.x < -localItem.dim or localItem.x >= width:
 			item.remove(item[index])
 			return True
 	return False
 
-# Resets the ball's direction between 0 and 2π.
+# Resets the ball's direction between 0 and 2pi.
 def setGoodBallDirection():
 	while (ball.direction < 0):
 		ball.direction = ball.direction + 2 * math.pi
@@ -195,7 +195,7 @@ def computeReceivedData(s_index, data):
 	data2 = data.split('|')[len(data.split('|')) - 2]
 	inputs = data2.split('\n')
 		
-    # Manage inputs and the rackets' position
+	# Manage inputs and the rackets' position
 	if inputs[0] == "1" and inputs[1] == "0":
 		racket_coords[s_index][1] = racket_coords[s_index][1] - (4 if effect[s_index] < 3 else (5 if effect[s_index] == 3 else (-4 if effect[s_index] == 5 else 3)))
 	elif inputs[0] == "0" and inputs[1] == "1":
@@ -261,11 +261,11 @@ def computeDataToSend(dataType, dataText):
 
 	if dataType == "P":
 		for i in range(len(data)):
-            # Get ball position
+			# Get ball position
 			data[i] = data[i] + str(ball.x if i == 0 else width - ball.x - ball.diam) + "\n" + str(ball.y) + "\n"
-            # Effects
+			# Effects
 			data[i] = data[i] + str(effect[i if i == 0 else 1 - i]) + "\n" + str(effect[1 - i if i == 0 else i])
-            # Items
+			# Items
 			for j in range(len(item)):
 				data[i] = data[i] + "\n" + str(item[j].id) + "\n" + str(item[j].type) + "\n" + str(item[j].x if i == 0 else width - item[j].x - item[j].dim) + "\n" + str(item[j].y)
 					
