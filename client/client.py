@@ -107,7 +107,7 @@ def play(s):
     score_print[1] = pygame.image.load("../resource/image/text/-.png")
     score_print[2] = pygame.image.load("../resource/image/text/"+str(score[1])+".png")
     item_print.append(None)
-    for i in range(1, 5):
+    for i in range(1, 6):
         item_print.append(pygame.image.load("../resource/image/item/item"+str(i)+".png"))
 
     # Cheking the input
